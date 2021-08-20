@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace DLDice
 {
-    public interface IDiceResultsCalculator
+    public interface IDiceCalculatorService
     {
         Dictionary<int, decimal> ResultsOfNDice(int n, int hitOn, diceColour colour);
     }
 
-    public class DiceResultsCalculator : IDiceResultsCalculator
+    public class DiceCalculatorService : IDiceCalculatorService
     {
         private const int m_maxRolls = 10;
         private const bool m_devastatingOrdnance = false; //toto remove
@@ -39,30 +39,28 @@ namespace DLDice
             HelperFunctions.CheckProbability(results);
             return results;
         }
-
-
-
-        private static List<DiceSide> CreateDice(int hitOn, diceColour colour)
-        {
-            var profile = new DiceColourProfile(colour);
-            var sides = new List<DiceSide>();
-            for (var i = 1; i <= 6; i++)
-            {
-                var value = 0;
-                if (i >= hitOn) value = 1;
-                if (i >= profile.WorthTwoOnYPlus) value = 2;
-                var explodes = i >= profile.ExplodesOnZPlus;
-                sides.Add(new DiceSide(value, explodes));
-            }
-            return sides;
-        }
+        
+        //private static List<DiceSide> CreateDice(int hitOn, diceColour colour)
+        //{
+        //    var profile = new DiceColourProfile(colour);
+        //    var sides = new List<DiceSide>();
+        //    for (var i = 1; i <= 6; i++)
+        //    {
+        //        var value = 0;
+        //        if (i >= hitOn) value = 1;
+        //        if (i >= profile.WorthTwoOnYPlus) value = 2;
+        //        var explodes = i >= profile.ExplodesOnZPlus;
+        //        sides.Add(new DiceSide(value, explodes));
+        //    }
+        //    return sides;
+        //}
 
 
         /// <summary>
         /// Keys are all possible results, corresponding values are the probability of that result
         /// </summary>
         /// <returns></returns>
-        private static Dictionary<int, decimal> ResultsOfASingleDice(Dice dice)
+        private Dictionary<int, decimal> ResultsOfASingleDice(Dice dice)
         {
             return RollOneDice(dice, 1, 0);
         }
@@ -74,7 +72,7 @@ namespace DLDice
         /// <param name="numberOfRolls"></param>
         /// <param name="currentValue"></param>
         /// <returns></returns>
-        private static Dictionary<int, decimal> RollOneDice(Dice dice, int numberOfRolls = 1, int currentValue = 0)
+        private Dictionary<int, decimal> RollOneDice(Dice dice, int numberOfRolls = 1, int currentValue = 0)
         {
             var results = new Dictionary<int, decimal>();
             foreach (var side in dice.Sides)
@@ -103,7 +101,7 @@ namespace DLDice
         /// <param name="newValue"></param>
         /// <param name="numberOfDice"></param>
         /// <param name="dice"></param>
-        private static void AddResultsOfDiceProducedByTheExplosion(int numberOfRolls, Dictionary<int, Decimal> results, int newValue, int numberOfDice, Dice dice)
+        private void AddResultsOfDiceProducedByTheExplosion(int numberOfRolls, Dictionary<int, Decimal> results, int newValue, int numberOfDice, Dice dice)
         {
             var probabilityFactorForSplittingDice = (decimal)1 / (decimal)numberOfDice;
             for (var i = 1; i <= numberOfDice; i++)

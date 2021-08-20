@@ -32,7 +32,7 @@ namespace DLDice
         }
 
         /// <summary>
-        /// Like math.pow but simplier and works for decimals
+        /// Like math.pow but simpler and works for decimals
         /// </summary>
         /// <param name="value"></param>
         /// <param name="toThe"></param>
@@ -76,53 +76,6 @@ namespace DLDice
                 }
             }
             return tempResults;
-        }
-
-
-        public static DiceResultsDTO CalculateResults(DiceDTO dto)
-        {
-            var calculator = new DiceResultsCalculator();
-            var resultsBlack = calculator.ResultsOfNDice(dto.BlackDice, dto.BlackDiceHitOn, diceColour.black);
-            var resultsBlue = calculator.ResultsOfNDice(dto.BlueDice, dto.BlueDiceHitOn, diceColour.blue);
-            var resultsRed = calculator.ResultsOfNDice(dto.RedDice, dto.RedDiceHitOn, diceColour.red);
-
-            var result = HelperFunctions.CreateCombinedResults(dto.BlackDice > 0, dto.BlueDice>0, dto.RedDice>0, resultsBlack, resultsBlue,
-                resultsRed);
-
-            return new DiceResultsDTO
-            {
-                results = result
-            };
-        }
-
-        private static Dictionary<int, decimal> CreateCombinedResults(bool rollingBlack, bool rollingBlue, bool rollingRed, Dictionary<int, decimal> resultsBlack, Dictionary<int, decimal> resultsBlue, Dictionary<int, decimal> resultsRed)
-        {
-            Dictionary<int, decimal> result = null;
-            if (rollingBlack)
-            {
-                result = resultsBlack;
-                if (rollingBlue)
-                {
-                    result = Combine(result, resultsBlue);
-                }
-                if (rollingRed)
-                {
-                    result = Combine(result, resultsRed);
-                }
-            }
-            else if (rollingBlue)
-            {
-                result = resultsBlue;
-                if (rollingRed)
-                {
-                    result = Combine(result, resultsRed);
-                }
-            }
-            else if (rollingRed)
-            {
-                result = resultsRed;
-            }
-            return result;
         }
     }
 }
