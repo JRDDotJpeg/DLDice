@@ -14,7 +14,7 @@ namespace DLDice.UnitTests
     [TestClass]
     public class DiceCalculatorTests
     {
-        private bool CompareResults(DiceResultsDTO resultsDTO, string expectedResultsJson)
+        private static bool CompareResults(DiceResultsDTO resultsDTO, string expectedResultsJson)
         {
             var expectedResultsDto = JsonConvert.DeserializeObject<DiceResultsDTO>(expectedResultsJson);
             return resultsDTO.Results.All(entry =>
