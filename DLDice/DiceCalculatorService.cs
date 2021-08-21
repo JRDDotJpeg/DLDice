@@ -8,7 +8,7 @@ namespace DLDice
 {
     public interface IDiceCalculatorService
     {
-        Dictionary<int, decimal> ResultsOfNDice(int n, int hitOn, diceColour colour);
+        Dictionary<int, decimal> ResultsOfNDice(DicePool dicePool);
     }
 
     public class DiceCalculatorService : IDiceCalculatorService
@@ -17,21 +17,19 @@ namespace DLDice
         private const bool m_devastatingOrdnance = false; //toto remove
 
         /// <summary>
-        /// Keys are all possible results, corresponding values are the probability of that result
+        /// Keys are all possible Results, corresponding values are the probability of that result
         /// </summary>
-        /// <param name="n"></param> //todo pass in dice
-        /// <param name="hitOn"></param>
-        /// <param name="colour"></param>
+        /// <param name="dicePool"></param>
         /// <returns></returns>
-        public Dictionary<int, decimal> ResultsOfNDice(int n, int hitOn, diceColour colour)
+        public Dictionary<int, decimal> ResultsOfNDice(DicePool dicePool)
         {
-            if (n == 0) return new Dictionary<int, decimal>();
+            if (dicePool.NumberOfDice == 0) return new Dictionary<int, decimal>();
 
-            var dice = new Dice(hitOn, colour);
+            var dice = new Dice(dicePool.HitOn, dicePool.DiceColour);
             var results = ResultsOfASingleDice(dice);
             var resultsFromASingleDice = ResultsOfASingleDice(dice);
 
-            for (var i = 2; i <= n; i++)
+            for (var i = 2; i <= dicePool.NumberOfDice; i++)
             {
                 results = HelperFunctions.Combine(results, resultsFromASingleDice);
             }
@@ -57,7 +55,7 @@ namespace DLDice
 
 
         /// <summary>
-        /// Keys are all possible results, corresponding values are the probability of that result
+        /// Keys are all possible Results, corresponding values are the probability of that result
         /// </summary>
         /// <returns></returns>
         private Dictionary<int, decimal> ResultsOfASingleDice(Dice dice)

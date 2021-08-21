@@ -10,14 +10,14 @@ namespace DLDice.API
     public interface IDiceCalculator
     {
         /// <summary>
-        /// Calculates the possible results of the specified dice.
+        /// Calculates the possible Results of the specified dice.
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
         DiceResultsDTO CalculateResults(DiceDTO dto);
     }
 
-    internal class DiceCalculator : IDiceCalculator
+    public class DiceCalculator : IDiceCalculator
     {
         private readonly IDiceCalculatorService _calculatorService;
 
@@ -27,16 +27,16 @@ namespace DLDice.API
         }
         public DiceResultsDTO CalculateResults(DiceDTO dto)
         {
-            var resultsBlack = _calculatorService.ResultsOfNDice(dto.BlackDice, dto.BlackDiceHitOn, diceColour.black);
-            var resultsBlue = _calculatorService.ResultsOfNDice(dto.BlueDice, dto.BlueDiceHitOn, diceColour.blue);
-            var resultsRed = _calculatorService.ResultsOfNDice(dto.RedDice, dto.RedDiceHitOn, diceColour.red);
+            var resultsBlack = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.BlackDice, HitOn = dto.BlackDiceHitOn, DiceColour = diceColour.black });
+            var resultsBlue = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.BlueDice, HitOn = dto.BlueDiceHitOn, DiceColour = diceColour.blue});
+            var resultsRed = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.RedDice, HitOn = dto.RedDiceHitOn, DiceColour = diceColour.red});
 
             var result = CombineResults(dto.BlackDice > 0, dto.BlueDice > 0, dto.RedDice > 0, resultsBlack, resultsBlue,
                 resultsRed);
 
             return new DiceResultsDTO
             {
-                results = result
+                Results = result
             };
         }
 

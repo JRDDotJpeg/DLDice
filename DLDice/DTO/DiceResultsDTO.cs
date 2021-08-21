@@ -8,6 +8,6 @@ namespace DLDice.DTO
 {
     public class DiceResultsDTO
     {
-        public Dictionary<int, decimal> results { get; set; }
+        public Dictionary<int, decimal> Results { get; set; }
     }
 }

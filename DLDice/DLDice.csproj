@@ -75,6 +75,7 @@
     <Compile Include="API\DiceCalculator.cs" />
     <Compile Include="Dice.cs" />
     <Compile Include="DiceColourProfile.cs" />
+    <Compile Include="DicePool.cs" />
     <Compile Include="DiceSide.cs" />
     <Compile Include="DTO\DiceDTO.cs" />
     <Compile Include="DTO\DiceResultsDTO.cs" />
