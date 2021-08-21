@@ -35,6 +35,10 @@ namespace DLDice.UnitTests
                     var tenBlue3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.blue };
                     var tenRed3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.red };
 
+                    var zeroBlack = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = diceColour.black };
+                    var zeroBlue = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = diceColour.blue };
+                    var zeroRed = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = diceColour.red };
+
                     var mockDiceCalculatorService = new Mock<IDiceCalculatorService>();
                     mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenBlack))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
@@ -55,6 +59,14 @@ namespace DLDice.UnitTests
                     mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenRed3Plus))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
                             ExpectedResultsFromDiceCalculatorService.TenRedThreePlus));
+
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(zeroBlack))
+                        .Returns(new Dictionary<int, decimal>());
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(zeroBlue))
+                        .Returns(new Dictionary<int, decimal>());
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(zeroRed))
+                        .Returns(new Dictionary<int, decimal>());
+
 
                     _calculator = new DiceCalculator(mockDiceCalculatorService.Object);
                 }

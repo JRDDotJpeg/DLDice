@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +15,7 @@ namespace DLDice
 
     public class DiceCalculatorService : IDiceCalculatorService
     {
-        private const int m_maxRolls = 10;
-        private const bool m_devastatingOrdnance = false; //toto remove
+        private const int c_maxRolls = 10;
 
         /// <summary>
         /// Keys are all possible Results, corresponding values are the probability of that result
@@ -23,7 +24,12 @@ namespace DLDice
         /// <returns></returns>
         public Dictionary<int, decimal> ResultsOfNDice(DicePool dicePool)
         {
-            if (dicePool.NumberOfDice == 0) return new Dictionary<int, decimal>();
+            if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > 50) return new Dictionary<int, decimal>();
+
+            if (dicePool.HitOn > 6 || dicePool.HitOn < 1)
+            {
+                throw new InvalidDataException($"Value for HitOn out side of acceptable range, value:{dicePool.HitOn}");
+            }
 
             var dice = new Dice(dicePool.HitOn, dicePool.DiceColour);
             var results = ResultsOfASingleDice(dice);
@@ -37,22 +43,6 @@ namespace DLDice
             HelperFunctions.CheckProbability(results);
             return results;
         }
-        
-        //private static List<DiceSide> CreateDice(int hitOn, diceColour colour)
-        //{
-        //    var profile = new DiceColourProfile(colour);
-        //    var sides = new List<DiceSide>();
-        //    for (var i = 1; i <= 6; i++)
-        //    {
-        //        var value = 0;
-        //        if (i >= hitOn) value = 1;
-        //        if (i >= profile.WorthTwoOnYPlus) value = 2;
-        //        var explodes = i >= profile.ExplodesOnZPlus;
-        //        sides.Add(new DiceSide(value, explodes));
-        //    }
-        //    return sides;
-        //}
-
 
         /// <summary>
         /// Keys are all possible Results, corresponding values are the probability of that result
@@ -77,10 +67,9 @@ namespace DLDice
             {
                 var newValue = currentValue + side.Value;
 
-                if (side.Explodes && numberOfRolls < m_maxRolls)
+                if (side.Explodes && numberOfRolls < c_maxRolls)
                 {
                     var numberOfDiceProducedByExplosion = 1;
-                    if (m_devastatingOrdnance && numberOfRolls == 1) numberOfDiceProducedByExplosion = 2;
                     AddResultsOfDiceProducedByTheExplosion(numberOfRolls, results, newValue, numberOfDiceProducedByExplosion, dice);
                 }
                 else

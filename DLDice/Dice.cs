@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DLDice
 {
-    class Dice
+    internal class Dice
     {
         public List<DiceSide> Sides { get; } = new List<DiceSide>();
 
@@ -19,14 +19,16 @@ namespace DLDice
             for (var i = 1; i <= 6; i++)
             {
                 var value = 0;
-                if (i >= hitOn) value = 1;
-                if (i >= profile.WorthTwoOnYPlus) value = 2;
-                var explodes = i >= profile.ExplodesOnZPlus;
+                var explodes = false;
+                if (i >= hitOn)
+                {
+                    value = 1;
+                    if (i >= profile.WorthTwoOnYPlus) value = 2;
+                    explodes = i >= profile.ExplodesOnZPlus;
+                }
                 Sides.Add(new DiceSide(value, explodes));
             }
-
         }
-
     }
 
     public enum diceColour

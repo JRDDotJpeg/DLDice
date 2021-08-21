@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -87,6 +88,18 @@ namespace DLDice.UnitTests
             {
                 Assert.Fail("Results do not match");
             }
+        }
+
+        [TestMethod]
+        public void CheckHitOnValidationWorks()
+        {
+            var pool = new DicePool { NumberOfDice = 10, HitOn = 0, DiceColour = diceColour.red };
+            var service = new DiceCalculatorService();
+            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfNDice(pool));
+            pool.HitOn = -1;
+            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfNDice(pool));
+            pool.HitOn = 7;
+            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfNDice(pool));
         }
     }
 }

@@ -31,8 +31,7 @@ namespace DLDice.API
             var resultsBlue = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.BlueDice, HitOn = dto.BlueDiceHitOn, DiceColour = diceColour.blue});
             var resultsRed = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.RedDice, HitOn = dto.RedDiceHitOn, DiceColour = diceColour.red});
 
-            var result = CombineResults(dto.BlackDice > 0, dto.BlueDice > 0, dto.RedDice > 0, resultsBlack, resultsBlue,
-                resultsRed);
+            var result = CombineResults(resultsBlack, resultsBlue, resultsRed);
 
             return new DiceResultsDTO
             {
@@ -40,30 +39,30 @@ namespace DLDice.API
             };
         }
 
-        private Dictionary<int, decimal> CombineResults(bool rollingBlack, bool rollingBlue, bool rollingRed, Dictionary<int, decimal> resultsBlack, Dictionary<int, decimal> resultsBlue, Dictionary<int, decimal> resultsRed)
+        private Dictionary<int, decimal> CombineResults(Dictionary<int, decimal> resultsBlack, Dictionary<int, decimal> resultsBlue, Dictionary<int, decimal> resultsRed)
         {
             Dictionary<int, decimal> result = null;
-            if (rollingBlack)
+            if (resultsBlack.Any())
             {
                 result = resultsBlack;
-                if (rollingBlue)
+                if (resultsBlue.Any())
                 {
                     result = HelperFunctions.Combine(result, resultsBlue);
                 }
-                if (rollingRed)
+                if (resultsRed.Any())
                 {
                     result = HelperFunctions.Combine(result, resultsRed);
                 }
             }
-            else if (rollingBlue)
+            else if (resultsBlue.Any())
             {
                 result = resultsBlue;
-                if (rollingRed)
+                if (resultsRed.Any())
                 {
                     result = HelperFunctions.Combine(result, resultsRed);
                 }
             }
-            else if (rollingRed)
+            else if (resultsRed.Any())
             {
                 result = resultsRed;
             }
