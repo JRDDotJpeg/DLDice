@@ -18,7 +18,7 @@ namespace DLDice.UnitTests
         {
             var expectedResultsDto = JsonConvert.DeserializeObject<DiceResultsDTO>(expectedResultsJson);
             return resultsDTO.Results.All(entry =>
-                resultsDTO.Results[entry.Key] == expectedResultsDto.Results[entry.Key]);
+               Math.Round(resultsDTO.Results[entry.Key], decimals:5) == Math.Round(expectedResultsDto.Results[entry.Key],decimals: 5));
         }
 
         private DiceCalculator _calculator = null;
@@ -40,31 +40,31 @@ namespace DLDice.UnitTests
                     var zeroRed = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = diceColour.red };
 
                     var mockDiceCalculatorService = new Mock<IDiceCalculatorService>();
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenBlack))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(tenBlack))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
                             ExpectedResultsFromDiceCalculatorService.TenBlackFourPlus));
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenBlue))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(tenBlue))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
                             ExpectedResultsFromDiceCalculatorService.TenBlueFourPlus));
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenRed))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(tenRed))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
                             ExpectedResultsFromDiceCalculatorService.TenRedFourPlus));
 
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenBlack3Plus))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(tenBlack3Plus))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
                             ExpectedResultsFromDiceCalculatorService.TenBlackThreePlus));
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenBlue3Plus))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(tenBlue3Plus))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
                             ExpectedResultsFromDiceCalculatorService.TenBlueThreePlus));
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(tenRed3Plus))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(tenRed3Plus))
                         .Returns(JsonConvert.DeserializeObject<Dictionary<int, decimal>>(
                             ExpectedResultsFromDiceCalculatorService.TenRedThreePlus));
 
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(zeroBlack))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(zeroBlack))
                         .Returns(new Dictionary<int, decimal>());
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(zeroBlue))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(zeroBlue))
                         .Returns(new Dictionary<int, decimal>());
-                    mockDiceCalculatorService.Setup(m => m.ResultsOfNDice(zeroRed))
+                    mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(zeroRed))
                         .Returns(new Dictionary<int, decimal>());
 
 
@@ -80,9 +80,15 @@ namespace DLDice.UnitTests
         {
             var dto = new DiceDTO
             {
-                BlackDice = 10,
-                BlackDiceHitOn = 4
+               DicePools = new List<DicePool>()
             };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = diceColour.black
+            });
 
             var res = DiceCalculator.CalculateResults(dto);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenBlackFourPlus))
@@ -96,9 +102,15 @@ namespace DLDice.UnitTests
         {
             var dto = new DiceDTO
             {
-                BlueDice = 10,
-                BlueDiceHitOn = 4
+                DicePools = new List<DicePool>()
             };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = diceColour.blue
+            });
 
             var res = DiceCalculator.CalculateResults(dto);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenBlueFourPlus))
@@ -112,9 +124,15 @@ namespace DLDice.UnitTests
         {
             var dto = new DiceDTO
             {
-                RedDice = 10,
-                RedDiceHitOn = 4
+                DicePools = new List<DicePool>()
             };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = diceColour.red
+            });
 
             var res = DiceCalculator.CalculateResults(dto);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenRedFourPlus))
@@ -128,9 +146,15 @@ namespace DLDice.UnitTests
         {
             var dto = new DiceDTO
             {
-                BlackDice = 10,
-                BlackDiceHitOn = 3
+                DicePools = new List<DicePool>()
             };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 3,
+                DiceColour = diceColour.black
+            });
 
             var res = DiceCalculator.CalculateResults(dto);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenBlackThreePlus))
@@ -144,9 +168,15 @@ namespace DLDice.UnitTests
         {
             var dto = new DiceDTO
             {
-                BlueDice = 10,
-                BlueDiceHitOn = 3
+                DicePools = new List<DicePool>()
             };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 3,
+                DiceColour = diceColour.blue
+            });
 
             var res = DiceCalculator.CalculateResults(dto);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenBlueThreePlus))
@@ -160,9 +190,15 @@ namespace DLDice.UnitTests
         {
             var dto = new DiceDTO
             {
-                RedDice = 10,
-                RedDiceHitOn = 3
+                DicePools = new List<DicePool>()
             };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 3,
+                DiceColour = diceColour.red
+            });
 
             var res = DiceCalculator.CalculateResults(dto);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenRedThreePlus))
@@ -176,13 +212,27 @@ namespace DLDice.UnitTests
         {
             var dto = new DiceDTO
             {
-                RedDice = 10,
-                RedDiceHitOn = 4,
-                BlueDice = 10,
-                BlueDiceHitOn = 4,
-                BlackDice = 10,
-                BlackDiceHitOn = 4
+                DicePools = new List<DicePool>()
             };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = diceColour.red
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = diceColour.blue
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = diceColour.black
+            });
 
             var res = DiceCalculator.CalculateResults(dto);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenOfEach4Plus))

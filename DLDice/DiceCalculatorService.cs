@@ -10,7 +10,7 @@ namespace DLDice
 {
     public interface IDiceCalculatorService
     {
-        Dictionary<int, decimal> ResultsOfNDice(DicePool dicePool);
+        Dictionary<int, decimal> ResultsOfDicePool(DicePool dicePool);
     }
 
     public class DiceCalculatorService : IDiceCalculatorService
@@ -22,7 +22,7 @@ namespace DLDice
         /// </summary>
         /// <param name="dicePool"></param>
         /// <returns></returns>
-        public Dictionary<int, decimal> ResultsOfNDice(DicePool dicePool)
+        public Dictionary<int, decimal> ResultsOfDicePool(DicePool dicePool)
         {
             if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > 50) return new Dictionary<int, decimal>();
 

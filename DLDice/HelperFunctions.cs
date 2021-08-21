@@ -61,18 +61,18 @@ namespace DLDice
 
 
         /// <summary>
-        /// Combines two probability dictionaries.
+        /// Combines two probability dictionaries into a single result.
         /// </summary>
-        public static Dictionary<int, decimal> Combine(Dictionary<int, decimal> results, Dictionary<int, decimal> resultsFromASingleDice)
+        public static Dictionary<int, decimal> Combine(Dictionary<int, decimal> resultsA, Dictionary<int, decimal> resultsB)
         {
             var tempResults = new Dictionary<int, decimal>();
-            foreach (var resultsPair in results)
+            foreach (var resultsPair in resultsA)
             {
-                foreach (var singleDicePair in resultsFromASingleDice)
+                foreach (var dicePair in resultsB)
                 {
-                    var combinedValue = resultsPair.Key + singleDicePair.Key;
-                    var combinedProbability = resultsPair.Value * singleDicePair.Value;
-                    HelperFunctions.AddToDictionaryOrSumWithExisting(tempResults, combinedValue, combinedProbability);
+                    var combinedValue = resultsPair.Key + dicePair.Key;
+                    var combinedProbability = resultsPair.Value * dicePair.Value;
+                    AddToDictionaryOrSumWithExisting(tempResults, combinedValue, combinedProbability);
                 }
             }
             return tempResults;

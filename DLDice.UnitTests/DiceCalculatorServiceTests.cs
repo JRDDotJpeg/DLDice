@@ -23,7 +23,7 @@ namespace DLDice.UnitTests
             var tenBlack = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.black };
             
             var service = new DiceCalculatorService();
-            var res = service.ResultsOfNDice(tenBlack);
+            var res = service.ResultsOfDicePool(tenBlack);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenBlackFourPlus))
             {
                 Assert.Fail("Results do not match");
@@ -35,7 +35,7 @@ namespace DLDice.UnitTests
         {
             var tenBlue = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.blue };
             var service = new DiceCalculatorService();
-            var res = service.ResultsOfNDice(tenBlue);
+            var res = service.ResultsOfDicePool(tenBlue);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenBlueFourPlus))
             {
                 Assert.Fail("Results do not match");
@@ -47,7 +47,7 @@ namespace DLDice.UnitTests
         {
             var tenRed = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.red };
             var service = new DiceCalculatorService();
-            var res = service.ResultsOfNDice(tenRed);
+            var res = service.ResultsOfDicePool(tenRed);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenRedFourPlus))
             {
                 Assert.Fail("Results do not match");
@@ -59,7 +59,7 @@ namespace DLDice.UnitTests
         {
             var tenBlack3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.black };
             var service = new DiceCalculatorService();
-            var res = service.ResultsOfNDice(tenBlack3Plus);
+            var res = service.ResultsOfDicePool(tenBlack3Plus);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenBlackThreePlus))
             {
                 Assert.Fail("Results do not match");
@@ -71,7 +71,7 @@ namespace DLDice.UnitTests
         {
             var tenBlue3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.blue };
             var service = new DiceCalculatorService();
-            var res = service.ResultsOfNDice(tenBlue3Plus);
+            var res = service.ResultsOfDicePool(tenBlue3Plus);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenBlueThreePlus))
             {
                 Assert.Fail("Results do not match");
@@ -83,7 +83,7 @@ namespace DLDice.UnitTests
         {
             var tenRed3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.red };
             var service = new DiceCalculatorService();
-            var res = service.ResultsOfNDice(tenRed3Plus);
+            var res = service.ResultsOfDicePool(tenRed3Plus);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenRedThreePlus))
             {
                 Assert.Fail("Results do not match");
@@ -95,11 +95,11 @@ namespace DLDice.UnitTests
         {
             var pool = new DicePool { NumberOfDice = 10, HitOn = 0, DiceColour = diceColour.red };
             var service = new DiceCalculatorService();
-            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfNDice(pool));
+            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfDicePool(pool));
             pool.HitOn = -1;
-            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfNDice(pool));
+            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfDicePool(pool));
             pool.HitOn = 7;
-            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfNDice(pool));
+            Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfDicePool(pool));
         }
     }
 }

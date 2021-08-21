@@ -27,46 +27,24 @@ namespace DLDice.API
         }
         public DiceResultsDTO CalculateResults(DiceDTO dto)
         {
-            var resultsBlack = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.BlackDice, HitOn = dto.BlackDiceHitOn, DiceColour = diceColour.black });
-            var resultsBlue = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.BlueDice, HitOn = dto.BlueDiceHitOn, DiceColour = diceColour.blue});
-            var resultsRed = _calculatorService.ResultsOfNDice(new DicePool { NumberOfDice = dto.RedDice, HitOn = dto.RedDiceHitOn, DiceColour = diceColour.red});
+            var uncombinedResults = dto.DicePools.Select(dtoDicePool => _calculatorService.ResultsOfDicePool(dtoDicePool)).ToList();
+            Dictionary<int, decimal> combinedResults = null;
 
-            var result = CombineResults(resultsBlack, resultsBlue, resultsRed);
+            foreach (var resultSet in uncombinedResults)
+            {
+                if(combinedResults is null)
+                {
+                    combinedResults = resultSet;
+                    continue;
+                }
+
+                combinedResults = HelperFunctions.Combine(combinedResults, resultSet);
+            }
 
             return new DiceResultsDTO
             {
-                Results = result
+                Results = combinedResults
             };
-        }
-
-        private Dictionary<int, decimal> CombineResults(Dictionary<int, decimal> resultsBlack, Dictionary<int, decimal> resultsBlue, Dictionary<int, decimal> resultsRed)
-        {
-            Dictionary<int, decimal> result = null;
-            if (resultsBlack.Any())
-            {
-                result = resultsBlack;
-                if (resultsBlue.Any())
-                {
-                    result = HelperFunctions.Combine(result, resultsBlue);
-                }
-                if (resultsRed.Any())
-                {
-                    result = HelperFunctions.Combine(result, resultsRed);
-                }
-            }
-            else if (resultsBlue.Any())
-            {
-                result = resultsBlue;
-                if (resultsRed.Any())
-                {
-                    result = HelperFunctions.Combine(result, resultsRed);
-                }
-            }
-            else if (resultsRed.Any())
-            {
-                result = resultsRed;
-            }
-            return result;
         }
     }
 }
