@@ -75,7 +75,7 @@ namespace DLDice.UnitTests
 
         public static decimal AverageOfRedRerollableDice()
         {
-            return ((decimal)(0.8 + 0.8 + 0.8 + 1 + 1 + 2)) / (decimal)6;
+            return ((decimal)(0.8 + 0.8 + 0.8 + 1 + 1 + 2.8)) / (decimal)6;
         }
     }
 }

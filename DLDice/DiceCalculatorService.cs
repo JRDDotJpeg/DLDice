@@ -15,7 +15,7 @@ namespace DLDice
 
     public class DiceCalculatorService : IDiceCalculatorService
     {
-        private const int c_maxRolls = 10;
+        private const int c_maxRolls = 3;
 
         /// <summary>
         /// Keys are all possible Results, corresponding values are the probability of that result
@@ -24,7 +24,7 @@ namespace DLDice
         /// <returns></returns>
         public Dictionary<int, decimal> ResultsOfDicePool(DicePool dicePool)
         {
-            if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > 50) return new Dictionary<int, decimal>();
+            if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > 50 || dicePool.ReRolls > 0 && dicePool.NumberOfDice > 20) return new Dictionary<int, decimal>();
 
             if (dicePool.HitOn > 6 || dicePool.HitOn < 1)
             {
@@ -40,7 +40,7 @@ namespace DLDice
                 var finalResult = new Dictionary<int, decimal>();
 
 
-                RerollFun(resultsOfASingleDiceThatCantBeRerolled,ref finalResult, dicePool.ReRolls, dicePool.NumberOfDice, 1);
+                RerollFun(resultsOfASingleDiceThatCantBeRerolled,ref finalResult, dicePool.ReRolls, dicePool.NumberOfDice);
 
 
 
@@ -60,7 +60,7 @@ namespace DLDice
             
         }
 
-        private static void RerollFun(Dictionary<int, decimal> resultsOfASingleDiceThatCantBeRerolled, ref Dictionary<int, decimal> currentResults, int rerollsLeft, int diceLeft, decimal currentProbability)
+        private static void RerollFun(Dictionary<int, decimal> resultsOfASingleDiceThatCantBeRerolled, ref Dictionary<int, decimal> currentResults, int rerollsLeft, int diceLeft)
         {
             if(diceLeft == 0) return;
             diceLeft--;
@@ -68,16 +68,28 @@ namespace DLDice
             foreach (var outcome in resultsOfASingleDiceThatCantBeRerolled) //todo class member
             {
                 Dictionary<int,decimal> myCase;
-                var probOfThisHappening = outcome.Value * currentProbability;
                 if (outcome.Key > 0)
                 {
-                    myCase = new Dictionary<int, decimal> {{outcome.Key, probOfThisHappening}};
-                    RerollFun(resultsOfASingleDiceThatCantBeRerolled, ref myCase, 1, diceLeft, 1);
+                    // Add outcome
+                    myCase = new Dictionary<int, decimal> {{outcome.Key, outcome.Value } };
+                    // Move on to next dice
+                    RerollFun(resultsOfASingleDiceThatCantBeRerolled, ref myCase, rerollsLeft, diceLeft);
                 }
-                else
+                else // result we want to reroll
                 {
-                    myCase = HelperFunctions.CombineSingleProbability(resultsOfASingleDiceThatCantBeRerolled, 0, probOfThisHappening);
-                    RerollFun(resultsOfASingleDiceThatCantBeRerolled, ref myCase, 1, diceLeft, 1);
+                    if (rerollsLeft > 0)
+                    {
+                        // add the results of the reroll
+                        rerollsLeft--;
+                        myCase = HelperFunctions.CombineSingleProbability(resultsOfASingleDiceThatCantBeRerolled, 0, outcome.Value);
+                        // move on to next dice in pool
+                        RerollFun(resultsOfASingleDiceThatCantBeRerolled, ref myCase, rerollsLeft, diceLeft);
+                    }
+                    else
+                    {
+                        myCase = new Dictionary<int, decimal> { { outcome.Key, outcome.Value } };
+                        RerollFun(resultsOfASingleDiceThatCantBeRerolled, ref myCase, rerollsLeft, diceLeft);
+                    }
                 }
                 cases.Add(myCase);
             }
