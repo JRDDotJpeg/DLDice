@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,6 +16,14 @@ namespace DLDice.UnitTests
             var expectedResultsDto = JsonConvert.DeserializeObject<Dictionary<int, decimal>>(expectedResultsJson);
             return res.All(entry =>
                 res[entry.Key] == expectedResultsDto[entry.Key]);
+        }
+
+        private static bool CompareResults(decimal resultA, decimal resultB)
+        {
+            resultA = Math.Round(resultA, decimals: 5);
+            resultB = Math.Round(resultB, decimals: 5);
+            return resultA == resultB;
+
         }
 
         [TestMethod]
@@ -103,28 +112,108 @@ namespace DLDice.UnitTests
         }
 
         [TestMethod]
-        public void CheckBlackDiceRerollsWork()
+        public void Rerolls12BlackDiceWith12Rerolls()
         {
+            // In this test and those based on it we leverage the fact that if all the dice can be rerolled
+            // Then n dice has the same average as n * 1 rerollable dice.
             var thisManyDice = 12;
-            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.black, ReRolls = 1};
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.black, ReRolls = thisManyDice};
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(pool);
 
             var average = HelperFunctions.CalculateAverage(res);
             var expectedAverage = thisManyDice * TestDataGenerator.AverageOfBlackRerollableDice();
+            Assert.IsTrue(CompareResults(average, expectedAverage));
         }
 
         [TestMethod]
-        public void CheckBlueDiceRerollsWork()
+        public void Rerolls12BlueDiceWith12Rerolls()
         {
             var thisManyDice = 12;
-            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.blue, ReRolls = 1 };
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.blue, ReRolls = thisManyDice };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(pool);
 
             var average = HelperFunctions.CalculateAverage(res);
             var expectedAverage = thisManyDice * TestDataGenerator.AverageOfBlueRerollableDice();
+            Assert.IsTrue(CompareResults(average, expectedAverage));
         }
 
+
+        [TestMethod]
+        public void Rerolls12BlackDiceWith4Rerolls()
+        {
+            // If the number of rerolls is small compared to the total number of dice
+            // Then almost always, all of the rerolls will be used
+            // these are black dice so their average increases by 0.25 if the dice has a reroll
+            // A non rerollable dice has an average of 0.5.
+            // so each reroll is the same as adding half a dice to the pool
+            // So the results will be very similar to rolling the number of dice + (the number of rerolls)/2 with 0 rerolls.
+            var service = new DiceCalculatorService();
+            var thisManyDice = 12;
+            var rerolls = 4; // must be even
+
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.black, ReRolls = rerolls };
+            var res = service.ResultsOfDicePool(pool);
+            var averageWithRerolls = HelperFunctions.CalculateAverage(res);
+
+            var noRerollsButExtraDicePool = new DicePool { NumberOfDice = (int)(thisManyDice + (rerolls/2.0)), HitOn = 4, DiceColour = diceColour.black, ReRolls = 0 };
+            var noRerollsRes = service.ResultsOfDicePool(noRerollsButExtraDicePool);
+            var averageNoRerolls = HelperFunctions.CalculateAverage(noRerollsRes);
+            
+            Assert.IsTrue(CompareResults(averageWithRerolls, averageNoRerolls));
+        }
+
+        [TestMethod]
+        public void Rerolls12BlueDiceWith4Rerolls()
+        {
+            // If the number of rerolls is small compared to the total number of dice
+            // Then almost always, all of the rerolls will be used
+            // these are blue dice so their average increases by 1/3 if the dice has a reroll
+            // A non rerollable dice has an average of 2/3.
+            // so each reroll is the same as adding half a dice to the pool
+            // So the results will be very similar to rolling the number of dice + (the number of rerolls)/2 with 0 rerolls.
+            var service = new DiceCalculatorService();
+            var thisManyDice = 12;
+            var rerolls = 4; // must be even
+
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.blue, ReRolls = rerolls };
+            var res = service.ResultsOfDicePool(pool);
+            var averageWithRerolls = HelperFunctions.CalculateAverage(res);
+
+            var noRerollsButExtraDicePool = new DicePool { NumberOfDice = (int)(thisManyDice + (rerolls / 2.0)), HitOn = 4, DiceColour = diceColour.blue, ReRolls = 0 };
+            var noRerollsRes = service.ResultsOfDicePool(noRerollsButExtraDicePool);
+            var averageNoRerolls = HelperFunctions.CalculateAverage(noRerollsRes);
+
+            Assert.IsTrue(CompareResults(averageWithRerolls, averageNoRerolls));
+        }
+
+
+        [TestMethod]
+        public void Rerolls12RedDiceWith4Rerolls()
+        {
+            // If the number of rerolls is small compared to the total number of dice
+            // Then almost always, all of the rerolls will be used
+            // these are red dice so their average increases by 0.4 if the dice has a reroll
+            // A non rerollable dice has an average of 0.8.
+            // so each reroll is the same as adding half a dice to the pool
+            // So the results will be very similar to rolling the number of dice + (the number of rerolls)/2 with 0 rerolls.
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            var service = new DiceCalculatorService();
+            var thisManyDice = 8;
+            var rerolls = 2; // must be even
+
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.red, ReRolls = rerolls };
+            var res = service.ResultsOfDicePool(pool);
+            var averageWithRerolls = HelperFunctions.CalculateAverage(res);
+
+            var noRerollsButExtraDicePool = new DicePool { NumberOfDice = (int)(thisManyDice + (rerolls / 2.0)), HitOn = 4, DiceColour = diceColour.red, ReRolls = 0 };
+            var noRerollsRes = service.ResultsOfDicePool(noRerollsButExtraDicePool);
+            var averageNoRerolls = HelperFunctions.CalculateAverage(noRerollsRes);
+
+            Assert.IsTrue(CompareResults(averageWithRerolls, averageNoRerolls));
+            watch.Stop();
+        }
     }
 }
