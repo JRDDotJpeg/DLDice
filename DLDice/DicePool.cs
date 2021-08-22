@@ -13,5 +13,7 @@ namespace DLDice
         public int HitOn { get; set; }
 
         public diceColour DiceColour { get; set; }
+
+        public int ReRolls { get; set; }
     }
 }

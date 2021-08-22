@@ -32,6 +32,23 @@ namespace DLDice
         }
 
         /// <summary>
+        /// For each key in dictionary 2
+        /// Checks if the target contains the passed key if so add the passed value to the existing value.
+        /// Otherwise adds the key and value to the dictionary
+        /// </summary>
+        /// <param name="target"></param>
+        /// 
+        public static Dictionary<int, decimal> AddToDictionaryOrSumWithExisting(Dictionary<int, decimal> target, Dictionary<int, decimal> data)
+        {
+            foreach (var keyValuePair in data)
+            {
+                AddToDictionaryOrSumWithExisting(target, keyValuePair.Key, keyValuePair.Value);
+            }
+
+            return target;
+        }
+
+        /// <summary>
         /// Like math.pow but simpler and works for decimals
         /// </summary>
         /// <param name="value"></param>
@@ -66,16 +83,55 @@ namespace DLDice
         public static Dictionary<int, decimal> Combine(Dictionary<int, decimal> resultsA, Dictionary<int, decimal> resultsB)
         {
             var tempResults = new Dictionary<int, decimal>();
-            foreach (var resultsPair in resultsA)
+            if (!resultsA.Any())
             {
                 foreach (var dicePair in resultsB)
                 {
-                    var combinedValue = resultsPair.Key + dicePair.Key;
-                    var combinedProbability = resultsPair.Value * dicePair.Value;
+                    tempResults.Add(dicePair.Key, dicePair.Value);
+                }
+            }
+            else
+            {
+                foreach (var resultsPair in resultsA)
+                {
+                    foreach (var dicePair in resultsB)
+                    {
+                        var combinedValue = resultsPair.Key + dicePair.Key;
+                        var combinedProbability = resultsPair.Value * dicePair.Value;
+                        AddToDictionaryOrSumWithExisting(tempResults, combinedValue, combinedProbability);
+                    }
+                }
+            }
+            return tempResults;
+        }
+
+        /// <summary>
+        /// Combines two probability dictionaries into a single result.
+        /// If the dictionary is empty, adds the value prob pair as the only item.
+        /// </summary>
+        public static Dictionary<int, decimal> CombineSingleProbability(Dictionary<int, decimal> resultsA, int value,decimal prob)
+        {
+            var tempResults = new Dictionary<int, decimal>();
+
+            if (!resultsA.Any())
+            {
+                tempResults.Add(value, prob);
+            }
+            else
+            {
+                foreach (var resultsPair in resultsA)
+                {
+                    var combinedValue = resultsPair.Key + value;
+                    var combinedProbability = resultsPair.Value * prob;
                     AddToDictionaryOrSumWithExisting(tempResults, combinedValue, combinedProbability);
                 }
             }
             return tempResults;
+        }
+
+        public static decimal CalculateAverage(Dictionary<int, decimal> data)
+        {
+            return data.Sum(pair => pair.Value * pair.Key);
         }
     }
 }

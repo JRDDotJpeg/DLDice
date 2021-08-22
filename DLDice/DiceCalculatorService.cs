@@ -32,25 +32,99 @@ namespace DLDice
             }
 
             var dice = new Dice(dicePool.HitOn, dicePool.DiceColour);
-            var results = ResultsOfASingleDice(dice);
-            var resultsFromASingleDice = ResultsOfASingleDice(dice);
-
-            for (var i = 2; i <= dicePool.NumberOfDice; i++)
+            var results = ResultsOfASingleDice(dice, false);
+            var resultsOfASingleDiceThatCantBeRerolled = ResultsOfASingleDice(dice, false);
+            if (dicePool.ReRolls > 0)
             {
-                results = HelperFunctions.Combine(results, resultsFromASingleDice);
-            }
+                var resultsOfADiceThatIsRerollable = ResultsOfASingleDice(dice, true);
+                var finalResult = new Dictionary<int, decimal>();
 
-            HelperFunctions.CheckProbability(results);
-            return results;
+
+                RerollFun(resultsOfASingleDiceThatCantBeRerolled,ref finalResult, dicePool.ReRolls, dicePool.NumberOfDice, 1);
+
+
+
+                HelperFunctions.CheckProbability(finalResult);
+                return finalResult;
+            }
+            else
+            {
+                for (var i = 2; i <= dicePool.NumberOfDice; i++)
+                {
+                    results = HelperFunctions.Combine(results, resultsOfASingleDiceThatCantBeRerolled);
+                }
+
+                HelperFunctions.CheckProbability(results);
+                return results;
+            }
+            
         }
 
+        private static void RerollFun(Dictionary<int, decimal> resultsOfASingleDiceThatCantBeRerolled, ref Dictionary<int, decimal> currentResults, int rerollsLeft, int diceLeft, decimal currentProbability)
+        {
+            if(diceLeft == 0) return;
+            diceLeft--;
+            var cases = new List<Dictionary<int, decimal>>();
+            foreach (var outcome in resultsOfASingleDiceThatCantBeRerolled) //todo class member
+            {
+                Dictionary<int,decimal> myCase;
+                var probOfThisHappening = outcome.Value * currentProbability;
+                if (outcome.Key > 0)
+                {
+                    myCase = new Dictionary<int, decimal> {{outcome.Key, probOfThisHappening}};
+                    RerollFun(resultsOfASingleDiceThatCantBeRerolled, ref myCase, 1, diceLeft, 1);
+                }
+                else
+                {
+                    myCase = HelperFunctions.CombineSingleProbability(resultsOfASingleDiceThatCantBeRerolled, 0, probOfThisHappening);
+                    RerollFun(resultsOfASingleDiceThatCantBeRerolled, ref myCase, 1, diceLeft, 1);
+                }
+                cases.Add(myCase);
+            }
+
+
+            var combinedCases = new Dictionary<int, decimal>();
+            foreach (var casee in cases)
+            {
+                combinedCases = HelperFunctions.AddToDictionaryOrSumWithExisting(combinedCases, casee);
+            }
+                
+            currentResults = AddAndMultiply(currentResults, combinedCases);
+
+        }
+
+        private static Dictionary<int, decimal> AddAndMultiply(Dictionary<int, decimal> target, Dictionary<int, decimal> extraData)
+        {
+            var result = new Dictionary<int,decimal>();
+            if (!target.Any())
+            {
+                foreach (var outcome in extraData)
+                {
+                    result.Add(outcome.Key, outcome.Value);
+                }
+                return result;
+            }
+            else
+            {
+                foreach (var pair in target)
+                {
+                    foreach (var outcome in extraData)
+                    {
+                        HelperFunctions.AddToDictionaryOrSumWithExisting(result,
+                            pair.Key + outcome.Key, pair.Value * outcome.Value);
+                    }
+                }
+
+                return result;
+            }
+        }
         /// <summary>
         /// Keys are all possible Results, corresponding values are the probability of that result
         /// </summary>
         /// <returns></returns>
-        private Dictionary<int, decimal> ResultsOfASingleDice(Dice dice)
+        private Dictionary<int, decimal> ResultsOfASingleDice(Dice dice, bool canReroll)
         {
-            return RollOneDice(dice, 1, 0);
+            return RollOneDice(dice, 1, 0, canReroll);
         }
 
         /// <summary>
@@ -60,16 +134,19 @@ namespace DLDice
         /// <param name="numberOfRolls"></param>
         /// <param name="currentValue"></param>
         /// <returns></returns>
-        private Dictionary<int, decimal> RollOneDice(Dice dice, int numberOfRolls = 1, int currentValue = 0)
+        private Dictionary<int, decimal> RollOneDice(Dice dice, int numberOfRolls, int currentValue, bool canReroll)
         {
             var results = new Dictionary<int, decimal>();
             foreach (var side in dice.Sides)
             {
                 var newValue = currentValue + side.Value;
-
-                if (side.Explodes && numberOfRolls < c_maxRolls)
+                if (side.Value == 0 && canReroll)
                 {
-                    var numberOfDiceProducedByExplosion = 1;
+                    AddResultsOfDiceProducedByTheExplosion(numberOfRolls, results, newValue, 1, dice);
+                } 
+                else if (side.Explodes && numberOfRolls < c_maxRolls)
+                {
+                    var numberOfDiceProducedByExplosion = 1; //todo remove
                     AddResultsOfDiceProducedByTheExplosion(numberOfRolls, results, newValue, numberOfDiceProducedByExplosion, dice);
                 }
                 else
@@ -93,7 +170,7 @@ namespace DLDice
             var probabilityFactorForSplittingDice = (decimal)1 / (decimal)numberOfDice;
             for (var i = 1; i <= numberOfDice; i++)
             {
-                foreach (var pair in RollOneDice(dice, numberOfRolls + 1, newValue))
+                foreach (var pair in RollOneDice(dice, numberOfRolls + 1, newValue, false))
                 {
                     var modifiedProbability = pair.Value * probabilityFactorForSplittingDice;
                     HelperFunctions.AddToDictionaryOrSumWithExisting(results, pair.Key, modifiedProbability);

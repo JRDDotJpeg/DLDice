@@ -101,5 +101,30 @@ namespace DLDice.UnitTests
             pool.HitOn = 7;
             Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfDicePool(pool));
         }
+
+        [TestMethod]
+        public void CheckBlackDiceRerollsWork()
+        {
+            var thisManyDice = 12;
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.black, ReRolls = 1};
+            var service = new DiceCalculatorService();
+            var res = service.ResultsOfDicePool(pool);
+
+            var average = HelperFunctions.CalculateAverage(res);
+            var expectedAverage = thisManyDice * TestDataGenerator.AverageOfBlackRerollableDice();
+        }
+
+        [TestMethod]
+        public void CheckBlueDiceRerollsWork()
+        {
+            var thisManyDice = 12;
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.blue, ReRolls = 1 };
+            var service = new DiceCalculatorService();
+            var res = service.ResultsOfDicePool(pool);
+
+            var average = HelperFunctions.CalculateAverage(res);
+            var expectedAverage = thisManyDice * TestDataGenerator.AverageOfBlueRerollableDice();
+        }
+
     }
 }
