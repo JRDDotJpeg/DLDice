@@ -62,5 +62,20 @@ namespace DLDice.UnitTests
             //    throw new Exception("Dictionaries do not match");
             //}
         }
+
+        public static decimal AverageOfBlackRerollableDice()
+        {
+            return ((decimal)(0.5 + 0.5 + 0.5 + 1 + 1 + 1)) / (decimal) 6;
+        }
+
+        public static decimal AverageOfBlueRerollableDice()
+        {
+            return ((decimal)(((decimal)2 / (decimal)3) + ((decimal)2 / (decimal)3) + ((decimal)2/(decimal)3) + 1 + 1 + 2)) / (decimal)6;
+        }
+
+        public static decimal AverageOfRedRerollableDice()
+        {
+            return ((decimal)(0.8 + 0.8 + 0.8 + 1 + 1 + 2)) / (decimal)6;
+        }
     }
 }
