@@ -28,7 +28,18 @@ namespace DLDice
             {
                 target[key] += value;
             }
+        }
 
+        public static void AddToDictionaryOrSumWithExisting(Dictionary<ValueAndRerollsUsed, decimal> target, ValueAndRerollsUsed key, decimal value)
+        {
+            if (!target.ContainsKey(key))
+            {
+                target.Add(key, value);
+            }
+            else
+            {
+                target[key] += value;
+            }
         }
 
         /// <summary>
@@ -47,6 +58,16 @@ namespace DLDice
 
             return target;
         }
+        public static Dictionary<ValueAndRerollsUsed, decimal> AddToDictionaryOrSumWithExisting(Dictionary<ValueAndRerollsUsed, decimal> target, Dictionary<ValueAndRerollsUsed, decimal> data)
+        {
+            foreach (var keyValuePair in data)
+            {
+                AddToDictionaryOrSumWithExisting(target, keyValuePair.Key, keyValuePair.Value);
+            }
+
+            return target;
+        }
+
 
         /// <summary>
         /// Like math.pow but simpler and works for decimals
@@ -69,11 +90,10 @@ namespace DLDice
         /// Checks that the combined probabilities sum to between 0.999 and 1.001
         /// </summary>
         /// <param name="results"></param>
-        public static void CheckProbability(Dictionary<int, decimal> results)
+        public static void CheckProbability(IEnumerable<decimal> results)
         {
-            decimal totalProbability = 0;
-            foreach (var val in results.Values) totalProbability += val;
-            if (totalProbability > (decimal)1.001 || totalProbability < (decimal)0.999) throw new Exception("Total probability did not total to 1 probability was: " + totalProbability.ToString(CultureInfo.InvariantCulture));
+            var totalProbability = results.Sum();
+            if (totalProbability > (decimal)1.0001 || totalProbability < (decimal)0.9999) throw new Exception("Total probability did not total to 1 probability was: " + totalProbability.ToString(CultureInfo.InvariantCulture));
         }
 
 
@@ -98,7 +118,15 @@ namespace DLDice
                     {
                         var combinedValue = resultsPair.Key + dicePair.Key;
                         var combinedProbability = resultsPair.Value * dicePair.Value;
-                        AddToDictionaryOrSumWithExisting(tempResults, combinedValue, combinedProbability);
+                        //AddToDictionaryOrSumWithExisting(tempResults, combinedValue, combinedProbability);
+                        if (tempResults.ContainsKey(combinedValue))
+                        {
+                            tempResults[combinedValue] += combinedProbability;
+                        }
+                        else
+                        {
+                            tempResults.Add(combinedValue, combinedProbability);
+                        }
                     }
                 }
             }
@@ -124,6 +152,81 @@ namespace DLDice
                     var combinedValue = resultsPair.Key + value;
                     var combinedProbability = resultsPair.Value * prob;
                     AddToDictionaryOrSumWithExisting(tempResults, combinedValue, combinedProbability);
+                }
+            }
+            return tempResults;
+        }
+
+        public static Dictionary<ValueAndRerollsUsed, decimal> CombineSingleProbabilityAndNumberOfRerolls(Dictionary<int, decimal> resultsA, int value, decimal prob, int rerollsUsed)
+        {
+            var tempResults = new Dictionary<ValueAndRerollsUsed, decimal>();
+
+            if (!resultsA.Any())
+            {
+                tempResults.Add(
+                    new ValueAndRerollsUsed
+                    {
+                        Successes = value,
+                        RerollsUsed = rerollsUsed
+                    }, prob);
+            }
+            else
+            {
+                foreach (var resultsPair in resultsA)
+                {
+                    var combinedValue = resultsPair.Key + value;
+                    var combinedProbability = resultsPair.Value * prob;
+                    var newKey = new ValueAndRerollsUsed
+                    {
+                        Successes = combinedValue,
+                        RerollsUsed = rerollsUsed
+                    };
+                    if (tempResults.ContainsKey(newKey))
+                    {
+                        tempResults[newKey] += combinedProbability;
+                    }
+                    else
+                    {
+                        tempResults.Add(newKey, combinedProbability);
+                    }
+                }
+            }
+            return tempResults;
+        }
+
+        public static Dictionary<ValueAndRerollsUsed, decimal>
+            CombineSingleOutcomeAndNumberOfRerolls(
+                Dictionary<ValueAndRerollsUsed, decimal> resultsA,
+                ValueAndRerollsUsed outcome,
+                decimal prob)
+        {
+            var tempResults = new Dictionary<ValueAndRerollsUsed, decimal>();
+
+            if (!resultsA.Any())
+            {
+                tempResults.Add(
+                    outcome, prob);
+            }
+            else
+            {
+                foreach (var resultsPair in resultsA)
+                {
+                    var combinedSuccesses = resultsPair.Key.Successes + outcome.Successes;
+                    var combinedProbability = resultsPair.Value * prob;
+                    var combinedRerollsUsed = resultsPair.Key.RerollsUsed + outcome.RerollsUsed;
+                    var newKey = new ValueAndRerollsUsed
+                    {
+                        Successes = combinedSuccesses,
+                        RerollsUsed = combinedRerollsUsed
+                    };
+                    if (tempResults.ContainsKey(newKey))
+                    {
+                        tempResults[newKey] += combinedProbability;
+                    }
+                    else
+                    {
+                        tempResults.Add(newKey, combinedProbability);
+                    }
                 }
             }
             return tempResults;
