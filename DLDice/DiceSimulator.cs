@@ -8,5 +8,6 @@ namespace DLDice
 {
     class DiceSimulator
     {
+
     }
 }

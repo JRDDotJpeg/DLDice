@@ -23,10 +23,9 @@ namespace DLDice
         /// </summary>
         /// <param name="dicePool"></param>
         /// <returns></returns>
-        public Dictionary<int, decimal> ResultsOfDicePool(DicePool dicePool, bool useRecursiveFunction = false)
+        public Dictionary<int, decimal> ResultsOfDicePool(DicePool dicePool)
         {
-            if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > 50 || dicePool.ReRolls > 0 && dicePool.NumberOfDice > 20) return new Dictionary<int, decimal>();
-
+            if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > 50) return new Dictionary<int, decimal>();
             if (dicePool.HitOn > 6 || dicePool.HitOn < 1)
             {
                 throw new InvalidDataException($"Successes for HitOn out side of acceptable range, value:{dicePool.HitOn}");
@@ -34,74 +33,61 @@ namespace DLDice
 
             var dice = new Dice(dicePool.HitOn, dicePool.DiceColour);
             
-            _resultsOfASingleDice = ResultsOfASingleDice(dice, false);
-            if (dicePool.ReRolls > 0)
+            _resultsOfASingleDice = ResultsOfASingleDice(dice, false); // TODO remove
+            return dicePool.ReRolls > 0 ?
+                CreateResultsForRerollableDice(dicePool) :
+                CreateResultsForNonrerollableDice(dicePool, dice);
+        }
+
+        private static Dictionary<int, decimal> CreateResultsForRerollableDice(DicePool dicePool)
+        {
+            var outComesUsingReroll = CreateRerollableDiceOutcomes(true);
+            var outComesNotUsingReroll = CreateRerollableDiceOutcomes(false);
+
+            var results = CreateRerollableDiceOutcomes(true);
+            for (var i = 2; i <= dicePool.NumberOfDice; i++)
             {
-                if (useRecursiveFunction) {
-                    var resultsOfADiceThatIsRerollable = ResultsOfASingleDice(dice, true);
-                    var finalResult = new Dictionary<int, decimal>();
-
-
-                    RerollFun(ref finalResult, dicePool.ReRolls, dicePool.NumberOfDice);
-
-
-
-                    HelperFunctions.CheckProbability(finalResult.Values);
-                    return finalResult;
-                }
-                else
+                var cases = new List<Dictionary<ValueAndRerollsUsed, decimal>>();
+                foreach (var outcome in results)
                 {
-                    var nonRecursiveResult = new Dictionary<ValueAndRerollsUsed, decimal>();
-                    var outComesUsingReroll = CreateRerollableDiceOutcomes(true);
-                    var outComesNotUsingReroll = CreateRerollableDiceOutcomes(false);
-
-                    var results = CreateRerollableDiceOutcomes(true);
-                    for (var i = 2; i <= dicePool.NumberOfDice; i++)
+                    if (outcome.Key.RerollsUsed < dicePool.ReRolls)
                     {
-                        var cases = new List<Dictionary<ValueAndRerollsUsed, decimal>>();
-                        foreach (var outcome in results)
-                        {
-                            if (outcome.Key.RerollsUsed < dicePool.ReRolls)
-                            {
-                                //combine with reroll able dice
-                                cases.Add(HelperFunctions.CombineSingleOutcomeAndNumberOfRerolls(outComesUsingReroll, outcome.Key, outcome.Value));
-
-                            }
-                            else
-                            {
-                                //combine with non rerollable dice
-                                cases.Add(HelperFunctions.CombineSingleOutcomeAndNumberOfRerolls(outComesNotUsingReroll, outcome.Key, outcome.Value));
-                            }
-                        }
-                        var combinedCases = new Dictionary<ValueAndRerollsUsed, decimal>();
-                        combinedCases = cases.Aggregate(HelperFunctions.AddToDictionaryOrSumWithExisting);
-                        results = combinedCases;
-
+                        //combine with reroll able dice
+                        cases.Add(HelperFunctions.CombineSingleOutcomeAndNumberOfRerolls(outComesUsingReroll,
+                            outcome.Key, outcome.Value));
                     }
-                    HelperFunctions.CheckProbability(results.Values);
-                    var convertedResults = new Dictionary<int,decimal>();
-                    foreach (var pair in results)
+                    else
                     {
-                        HelperFunctions.AddToDictionaryOrSumWithExisting(convertedResults, pair.Key.Successes,
-                            pair.Value);
+                        //combine with non rerollable dice
+                        cases.Add(HelperFunctions.CombineSingleOutcomeAndNumberOfRerolls(outComesNotUsingReroll,
+                            outcome.Key, outcome.Value));
                     }
-                    HelperFunctions.CheckProbability(convertedResults.Values);
-
-                    return convertedResults;
                 }
+                results = cases.Aggregate(HelperFunctions.AddToDictionaryOrSumWithExisting);
             }
-            else
+
+            HelperFunctions.CheckProbability(results.Values);
+            var convertedResults = new Dictionary<int, decimal>();
+            foreach (var pair in results)
             {
-                var results = ResultsOfASingleDice(dice, false);
-                for (var i = 2; i <= dicePool.NumberOfDice; i++)
-                {
-                    results = HelperFunctions.Combine(results, _resultsOfASingleDice);
-                }
-
-                HelperFunctions.CheckProbability(results.Values);
-                return results;
+                HelperFunctions.AddToDictionaryOrSumWithExisting(convertedResults, pair.Key.Successes,
+                    pair.Value);
             }
-            
+
+            HelperFunctions.CheckProbability(convertedResults.Values);
+            return convertedResults;
+        }
+
+        private Dictionary<int, decimal> CreateResultsForNonrerollableDice(DicePool dicePool, Dice dice)
+        {
+            var results = ResultsOfASingleDice(dice, false);
+            for (var i = 2; i <= dicePool.NumberOfDice; i++)
+            {
+                results = HelperFunctions.Combine(results, _resultsOfASingleDice);
+            }
+
+            HelperFunctions.CheckProbability(results.Values);
+            return results;
         }
 
         private static Dictionary<ValueAndRerollsUsed, decimal> CreateRerollableDiceOutcomes(bool canUseReroll)
@@ -153,108 +139,6 @@ namespace DLDice
             var combinedCases = new Dictionary<ValueAndRerollsUsed, decimal>();
             combinedCases = cases.Aggregate(combinedCases, HelperFunctions.AddToDictionaryOrSumWithExisting);
             return combinedCases;
-        }
-
-        private static void RerollFun(ref Dictionary<int, decimal> currentResults, int rerollsLeft, int diceLeft)
-        {
-            if(diceLeft == 0) return;
-            diceLeft--;
-            var cases = new List<Dictionary<int, decimal>>();
-            foreach (var outcome in _resultsOfASingleDice) //todo class member
-            {
-                Dictionary<int,decimal> myCase;
-                if (outcome.Key > 0)
-                {
-                    // Add outcome
-                    myCase = new Dictionary<int, decimal> {{outcome.Key, outcome.Value } };
-                    // Move on to next dice
-                    if(diceLeft > 0) RerollFun(ref myCase, rerollsLeft, diceLeft);
-                }
-                else // result we want to reroll
-                {
-                    if (rerollsLeft > 0)
-                    {
-                        // add the results of the reroll
-                        rerollsLeft--;
-                        myCase = HelperFunctions.CombineSingleProbability(_resultsOfASingleDice, 0, outcome.Value);
-                        // move on to next dice in pool
-                        if (diceLeft > 0) RerollFun(ref myCase, rerollsLeft, diceLeft);
-                    }
-                    else
-                    {
-                        myCase = new Dictionary<int, decimal> { { outcome.Key, outcome.Value } };
-                        for (var i = 1; i <= diceLeft; i++)
-                        {
-                            myCase = HelperFunctions.Combine(myCase, _resultsOfASingleDice);
-                        }
-                    }
-                }
-                cases.Add(myCase);
-            }
-
-
-            var combinedCases = new Dictionary<int, decimal>();
-            combinedCases = cases.Aggregate(combinedCases, HelperFunctions.AddToDictionaryOrSumWithExisting);
-
-            currentResults = AddAndMultiply(currentResults, combinedCases);
-
-        }
-
-        private static Dictionary<int, decimal> AddAndMultiply(Dictionary<int, decimal> target, Dictionary<int, decimal> extraData)
-        {
-            var result = new Dictionary<int,decimal>();
-            if (!target.Any())
-            {
-                foreach (var outcome in extraData)
-                {
-                    result.Add(outcome.Key, outcome.Value);
-                }
-                return result;
-            }
-            else
-            {
-                foreach (var pair in target)
-                {
-                    foreach (var outcome in extraData)
-                    {
-                        HelperFunctions.AddToDictionaryOrSumWithExisting(result,
-                            pair.Key + outcome.Key, pair.Value * outcome.Value);
-                    }
-                }
-
-                return result;
-            }
-        }
-
-        private static Dictionary<ValueAndRerollsUsed, decimal> AddAndMultiply(Dictionary<ValueAndRerollsUsed, decimal> target, Dictionary<ValueAndRerollsUsed, decimal> extraData)
-        {
-            var result = new Dictionary<ValueAndRerollsUsed, decimal>();
-            if (!target.Any())
-            {
-                foreach (var outcome in extraData)
-                {
-                    result.Add(outcome.Key, outcome.Value);
-                }
-                return result;
-            }
-            else
-            {
-                foreach (var pair in target)
-                {
-                    foreach (var outcome in extraData)
-                    {
-                        var newKey = new ValueAndRerollsUsed
-                        {
-                            Successes = pair.Key.Successes + outcome.Key.Successes,
-                            RerollsUsed = pair.Key.RerollsUsed + outcome.Key.RerollsUsed,
-                        };
-                        HelperFunctions.AddToDictionaryOrSumWithExisting(
-                            result, newKey, pair.Value * outcome.Value);
-                    }
-                }
-
-                return result;
-            }
         }
 
         /// <summary>
@@ -315,11 +199,6 @@ namespace DLDice
                     HelperFunctions.AddToDictionaryOrSumWithExisting(results, pair.Key, modifiedProbability);
                 }
             }
-        }
-
-        public Dictionary<int, decimal> ResultsOfDicePool(DicePool dicePool)
-        {
-            return ResultsOfDicePool(dicePool, false);
         }
     }
 }
