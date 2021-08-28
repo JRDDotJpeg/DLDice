@@ -18,7 +18,7 @@ namespace DLDice.API
     {
         private readonly IDiceCalculatorService _calculatorService;
 
-        internal DiceCalculator(IDiceCalculatorService service)
+        public DiceCalculator(IDiceCalculatorService service)
         {
             _calculatorService = service;
         }
