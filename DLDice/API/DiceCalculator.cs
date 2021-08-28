@@ -1,9 +1,6 @@
-﻿using System;
+﻿using DLDice.DTO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DLDice.DTO;
 
 namespace DLDice.API
 {
@@ -17,29 +14,23 @@ namespace DLDice.API
         DiceResultsDTO CalculateResults(DiceDTO dto);
     }
 
-    public class DiceCalculator : IDiceCalculator
+    internal class DiceCalculator : IDiceCalculator
     {
         private readonly IDiceCalculatorService _calculatorService;
 
-        public DiceCalculator(IDiceCalculatorService service)
+        internal DiceCalculator(IDiceCalculatorService service)
         {
             _calculatorService = service;
         }
+
         public DiceResultsDTO CalculateResults(DiceDTO dto)
         {
-            var uncombinedResults = dto.DicePools.Select(dtoDicePool => _calculatorService.ResultsOfDicePool(dtoDicePool)).ToList();
-            Dictionary<int, decimal> combinedResults = null;
+            var uncombinedResults = dto.DicePools.Select(
+                dtoDicePool => _calculatorService.ResultsOfDicePool(dtoDicePool))
+                .ToList();
 
-            foreach (var resultSet in uncombinedResults)
-            {
-                if(combinedResults is null)
-                {
-                    combinedResults = resultSet;
-                    continue;
-                }
-
-                combinedResults = HelperFunctions.Combine(combinedResults, resultSet);
-            }
+            var combinedResults =
+                uncombinedResults.Aggregate(HelperFunctions.Combine);
 
             return new DiceResultsDTO
             {

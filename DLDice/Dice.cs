@@ -10,13 +10,20 @@ namespace DLDice
     {
         public List<DiceSide> Sides { get; } = new List<DiceSide>();
 
-        private const int NumberOfSides = 6;
-        public const decimal ProbabilityOfAnyGivenSide = 1 / (decimal) NumberOfSides;
+        public decimal ProbabilityOfAnyGivenSide;
 
-        public Dice(int hitOn, DiceColour colour)
+
+        /// <summary>
+        /// Do not call directly, use the dice factory.
+        /// </summary>
+        /// <param name="hitOn"></param>
+        /// <param name="colour"></param>
+        /// <param name="numberOfSides"></param>
+        public Dice(int hitOn, DiceColourProfile profile, int numberOfSides)
         {
-            var profile = new DiceColourProfile(colour);
-            for (var i = 1; i <= 6; i++)
+            ProbabilityOfAnyGivenSide = 1 / (decimal)numberOfSides;
+            
+            for (var i = 1; i <= numberOfSides; i++)
             {
                 var value = 0;
                 var explodes = false;

@@ -76,6 +76,7 @@
     <Compile Include="API\DiceCalculator.cs" />
     <Compile Include="Dice.cs" />
     <Compile Include="DiceColourProfile.cs" />
+    <Compile Include="DiceFactory.cs" />
     <Compile Include="DicePool.cs" />
     <Compile Include="DiceSide.cs" />
     <Compile Include="DiceSimulator.cs" />
@@ -83,7 +84,7 @@
     <Compile Include="DTO\DiceResultsDTO.cs" />
     <Compile Include="HelperFunctions.cs" />
     <Compile Include="DiceCalculatorService.cs" />
-    <Compile Include="ProbabilityAndRerollsLeft.cs" />
+    <Compile Include="ValueAndRerollsUsed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DLDice.cs" />
   </ItemGroup>
