@@ -13,7 +13,7 @@ namespace DLDice
         private const int NumberOfSides = 6;
         public const decimal ProbabilityOfAnyGivenSide = 1 / (decimal) NumberOfSides;
 
-        public Dice(int hitOn, diceColour colour)
+        public Dice(int hitOn, DiceColour colour)
         {
             var profile = new DiceColourProfile(colour);
             for (var i = 1; i <= 6; i++)
@@ -31,7 +31,7 @@ namespace DLDice
         }
     }
 
-    public enum diceColour
+    public enum DiceColour
     {
         black,
         blue,

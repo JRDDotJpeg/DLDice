@@ -10,13 +10,13 @@ namespace DLDice
     {
         public int WorthTwoOnYPlus = 7;
         public int ExplodesOnZPlus = 7;
-        public DiceColourProfile(diceColour colour)
+        public DiceColourProfile(DiceColour colour)
         {
-            if (colour == diceColour.blue)
+            if (colour == DiceColour.blue)
             {
                 WorthTwoOnYPlus = 6;
             }
-            if (colour == diceColour.red)
+            if (colour == DiceColour.red)
             {
                 WorthTwoOnYPlus = 6;
                 ExplodesOnZPlus = 6;

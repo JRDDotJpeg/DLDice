@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using DLDice;
 
 namespace DLDice.UnitTests
 {
@@ -18,10 +20,10 @@ namespace DLDice.UnitTests
                 res[entry.Key] == expectedResultsDto[entry.Key]);
         }
 
-        private static bool CompareResults(decimal resultA, decimal resultB)
+        private static bool CompareResults(decimal resultA, decimal resultB, int roundToThisManyDP = 5)
         {
-            resultA = Math.Round(resultA, decimals: 5);
-            resultB = Math.Round(resultB, decimals: 5);
+            resultA = Math.Round(resultA, decimals: roundToThisManyDP);
+            resultB = Math.Round(resultB, decimals: roundToThisManyDP);
             return resultA == resultB;
 
         }
@@ -29,7 +31,7 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void ResultsOfNDice_10Black4Plus()
         {
-            var tenBlack = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.black };
+            var tenBlack = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = DiceColour.black };
             
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(tenBlack);
@@ -42,7 +44,7 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void ResultsOfNDice_10Blue4Plus()
         {
-            var tenBlue = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.blue };
+            var tenBlue = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = DiceColour.blue };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(tenBlue);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenBlueFourPlus))
@@ -54,7 +56,7 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void ResultsOfNDice_10Red4Plus()
         {
-            var tenRed = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.red };
+            var tenRed = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = DiceColour.red };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(tenRed);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenRedFourPlus))
@@ -66,7 +68,7 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void ResultsOfNDice_10Black3Plus()
         {
-            var tenBlack3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.black };
+            var tenBlack3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = DiceColour.black };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(tenBlack3Plus);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenBlackThreePlus))
@@ -78,7 +80,7 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void ResultsOfNDice_10Blue3Plus()
         {
-            var tenBlue3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.blue };
+            var tenBlue3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = DiceColour.blue };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(tenBlue3Plus);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenBlueThreePlus))
@@ -90,7 +92,7 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void ResultsOfNDice_10Red3Plus()
         {
-            var tenRed3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.red };
+            var tenRed3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = DiceColour.red };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(tenRed3Plus);
             if (!CompareResults(res, ExpectedResultsFromDiceCalculatorService.TenRedThreePlus))
@@ -102,7 +104,7 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void CheckHitOnValidationWorks()
         {
-            var pool = new DicePool { NumberOfDice = 10, HitOn = 0, DiceColour = diceColour.red };
+            var pool = new DicePool { NumberOfDice = 10, HitOn = 0, DiceColour = DiceColour.red };
             var service = new DiceCalculatorService();
             Assert.ThrowsException<InvalidDataException>(() => service.ResultsOfDicePool(pool));
             pool.HitOn = -1;
@@ -119,7 +121,7 @@ namespace DLDice.UnitTests
             // In this test and those based on it we leverage the fact that if all the dice can be rerolled
             // Then n dice has the same average as n * 1 rerollable dice.
             var thisManyDice = 12;
-            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.black, ReRolls = thisManyDice};
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = DiceColour.black, ReRolls = thisManyDice};
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(pool);
 
@@ -132,7 +134,7 @@ namespace DLDice.UnitTests
         public void Rerolls12BlueDiceWith12Rerolls()
         {
             var thisManyDice = 12;
-            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.blue, ReRolls = thisManyDice };
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = DiceColour.blue, ReRolls = thisManyDice };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(pool);
 
@@ -145,7 +147,7 @@ namespace DLDice.UnitTests
         public void Rerolls12RedDiceWith12Rerolls()
         {
             var thisManyDice = 12;
-            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.red, ReRolls = thisManyDice };
+            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = DiceColour.red, ReRolls = thisManyDice };
             var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(pool);
 
@@ -158,36 +160,125 @@ namespace DLDice.UnitTests
         [TestMethod]
         public void Rerolls3BlackDiceWith2Rerolls()
         {
-            var service = new DiceCalculatorService();
-            var thisManyDice = 3;
-            var rerolls = 2;
+            var pool = new DicePool
+            {
+                NumberOfDice = 3,
+                HitOn = 4,
+                DiceColour = DiceColour.black,
+                ReRolls = 2
+            };
+            TestAgainstSimulator(pool);
 
-            var pool = new DicePool { NumberOfDice = thisManyDice, HitOn = 4, DiceColour = diceColour.black, ReRolls = rerolls };
+            // Special case for this particular dice pool
+            var service = new DiceCalculatorService();
             var res = service.ResultsOfDicePool(pool);
             var averageWithRerolls = HelperFunctions.CalculateAverage(res);
-
-
             // I sat down and mapped out the full possibility space.
             // This is the average that I calculated.
             var averageNoRerolls = (decimal) 2.1875;
-
-            
             Assert.IsTrue(CompareResults(averageWithRerolls, averageNoRerolls));
+        }
+
+        [TestMethod]
+        public void Rerolls12BlackDiceWith4Rerolls()
+        {
+            var pool = new DicePool
+            {
+                NumberOfDice = 12,
+                HitOn = 4,
+                DiceColour = DiceColour.black,
+                ReRolls = 2
+            };
+            TestAgainstSimulator(pool);
         }
 
         [TestMethod]
         public void Rerolls12BlueDiceWith4Rerolls()
         {
-            // Todo make this work by comparing against results from the simulator
-
+            var pool = new DicePool
+            {
+                NumberOfDice = 12,
+                HitOn = 4,
+                DiceColour = DiceColour.blue,
+                ReRolls = 2
+            };
+            TestAgainstSimulator(pool);
         }
 
 
         [TestMethod]
         public void Rerolls12RedDiceWith4Rerolls()
         {
-            // Todo make this work by comparing against results from the simulator
+            var pool = new DicePool
+            {
+                NumberOfDice = 6,
+                HitOn = 4,
+                DiceColour = DiceColour.red,
+                ReRolls = 2
+            };
+            TestAgainstSimulator(pool);
+        }
+
+
+
+        public void TestAgainstSimulator(DicePool pool)
+        {
+            var service = new DiceCalculatorService();
+            var resultsFromService = service.ResultsOfDicePool(pool);
+            var averageOfResultsFromService = HelperFunctions.CalculateAverage(resultsFromService);
             
+            var resultsFromSimulator = GenerateTestDataUsingSimulator(pool);
+            var averageOfResultsFromSimulator = HelperFunctions.CalculateAverage(resultsFromSimulator);
+
+            // TODO compare more than just the average
+
+            Assert.IsTrue(CompareResults(
+                    averageOfResultsFromService,
+                    averageOfResultsFromSimulator,
+                    2));
+        }
+        
+        public Dictionary<int, decimal> GenerateTestDataUsingSimulator(DicePool pool)
+        {
+            var diceToRollPerTrial = 5000000;
+            var numberOfTrials = 10;
+            
+            var trialResults = new List<Dictionary<int, int>>();
+            var watch = new Stopwatch();
+            watch.Start();
+            
+            // Switch to regular for if debugging.
+            //for(var i = 1; i <= numberOfTrials; i++)
+            Parallel.For(0, numberOfTrials, i =>
+            {
+                var simulator = new DiceSimulator
+                {
+                    DicePool = pool,
+                    NumberOfTrials = diceToRollPerTrial
+                };
+                trialResults.Add(simulator.GenerateResults());
+            });
+            // }
+
+            var compiledResults = new Dictionary<int,decimal>();
+            foreach (var trialResult in trialResults)
+            {
+                foreach (var outcome in trialResult)
+                {
+                    HelperFunctions.AddToDictionaryOrSumWithExisting(compiledResults, outcome.Key, outcome.Value);
+                }
+            }
+            
+
+            var results = new Dictionary<int, decimal>();
+            foreach (var outcome in compiledResults)
+            {
+                var probability = outcome.Value / (decimal) (diceToRollPerTrial * numberOfTrials);
+                results.Add(outcome.Key, probability);
+            }
+            HelperFunctions.CheckProbability(results.Values);
+            watch.Stop();
+            return results;
         }
     }
 }
