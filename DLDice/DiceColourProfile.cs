@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DLDice
 {
-    class DiceColourProfile
+    internal class DiceColourProfile
     {
         public int WorthTwoOnYPlus = 7;
         public int ExplodesOnZPlus = 7;

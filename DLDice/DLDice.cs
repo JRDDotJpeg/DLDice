@@ -8,7 +8,6 @@ using DLDice.API;
 
 namespace DLDice
 {
-
     public interface IDLDice
     {
         IDiceCalculator Calculator { get; }
@@ -22,6 +21,7 @@ namespace DLDice
             var builder = new ContainerBuilder();
             builder.RegisterType<DiceCalculator>().As<IDiceCalculator>();
             builder.RegisterType<DiceCalculatorService>().As<IDiceCalculatorService>();
+            builder.RegisterType<DiceFactory>().As<IDiceFactory>();
             var container = builder.Build();
             Calculator = container.Resolve<IDiceCalculator>();
         }
