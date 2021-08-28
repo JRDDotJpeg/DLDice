@@ -30,19 +30,19 @@ namespace DLDice.UnitTests
                 {
                     NumberOfDice = 10,
                     HitOn = 4,
-                    DiceColour = diceColour.red
+                    DiceColour = DiceColour.red
                 });
                 dto.DicePools.Add(new DicePool
                 {
                     NumberOfDice = 10,
                     HitOn = 4,
-                    DiceColour = diceColour.blue
+                    DiceColour = DiceColour.blue
                 });
                 dto.DicePools.Add(new DicePool
                 {
                     NumberOfDice = 10,
                     HitOn = 4,
-                    DiceColour = diceColour.black
+                    DiceColour = DiceColour.black
                 });
             }
 

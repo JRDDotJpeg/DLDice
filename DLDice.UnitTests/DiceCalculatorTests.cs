@@ -28,16 +28,16 @@ namespace DLDice.UnitTests
             {
                 if (_calculator is null)
                 {
-                    var tenBlack = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.black };
-                    var tenBlue = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.blue };
-                    var tenRed = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = diceColour.red };
-                    var tenBlack3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.black };
-                    var tenBlue3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.blue };
-                    var tenRed3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = diceColour.red };
+                    var tenBlack = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = DiceColour.black };
+                    var tenBlue = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = DiceColour.blue };
+                    var tenRed = new DicePool { NumberOfDice = 10, HitOn = 4, DiceColour = DiceColour.red };
+                    var tenBlack3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = DiceColour.black };
+                    var tenBlue3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = DiceColour.blue };
+                    var tenRed3Plus = new DicePool { NumberOfDice = 10, HitOn = 3, DiceColour = DiceColour.red };
 
-                    var zeroBlack = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = diceColour.black };
-                    var zeroBlue = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = diceColour.blue };
-                    var zeroRed = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = diceColour.red };
+                    var zeroBlack = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = DiceColour.black };
+                    var zeroBlue = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = DiceColour.blue };
+                    var zeroRed = new DicePool { NumberOfDice = 0, HitOn = 0, DiceColour = DiceColour.red };
 
                     var mockDiceCalculatorService = new Mock<IDiceCalculatorService>();
                     mockDiceCalculatorService.Setup(m => m.ResultsOfDicePool(tenBlack))
@@ -87,7 +87,7 @@ namespace DLDice.UnitTests
             {
                 NumberOfDice = 10,
                 HitOn = 4,
-                DiceColour = diceColour.black
+                DiceColour = DiceColour.black
             });
 
             var res = DiceCalculator.CalculateResults(dto);
@@ -109,7 +109,7 @@ namespace DLDice.UnitTests
             {
                 NumberOfDice = 10,
                 HitOn = 4,
-                DiceColour = diceColour.blue
+                DiceColour = DiceColour.blue
             });
 
             var res = DiceCalculator.CalculateResults(dto);
@@ -131,7 +131,7 @@ namespace DLDice.UnitTests
             {
                 NumberOfDice = 10,
                 HitOn = 4,
-                DiceColour = diceColour.red
+                DiceColour = DiceColour.red
             });
 
             var res = DiceCalculator.CalculateResults(dto);
@@ -153,7 +153,7 @@ namespace DLDice.UnitTests
             {
                 NumberOfDice = 10,
                 HitOn = 3,
-                DiceColour = diceColour.black
+                DiceColour = DiceColour.black
             });
 
             var res = DiceCalculator.CalculateResults(dto);
@@ -175,7 +175,7 @@ namespace DLDice.UnitTests
             {
                 NumberOfDice = 10,
                 HitOn = 3,
-                DiceColour = diceColour.blue
+                DiceColour = DiceColour.blue
             });
 
             var res = DiceCalculator.CalculateResults(dto);
@@ -197,7 +197,7 @@ namespace DLDice.UnitTests
             {
                 NumberOfDice = 10,
                 HitOn = 3,
-                DiceColour = diceColour.red
+                DiceColour = DiceColour.red
             });
 
             var res = DiceCalculator.CalculateResults(dto);
@@ -219,19 +219,19 @@ namespace DLDice.UnitTests
             {
                 NumberOfDice = 10,
                 HitOn = 4,
-                DiceColour = diceColour.red
+                DiceColour = DiceColour.red
             });
             dto.DicePools.Add(new DicePool
             {
                 NumberOfDice = 10,
                 HitOn = 4,
-                DiceColour = diceColour.blue
+                DiceColour = DiceColour.blue
             });
             dto.DicePools.Add(new DicePool
             {
                 NumberOfDice = 10,
                 HitOn = 4,
-                DiceColour = diceColour.black
+                DiceColour = DiceColour.black
             });
 
             var res = DiceCalculator.CalculateResults(dto);

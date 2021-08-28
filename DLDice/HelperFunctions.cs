@@ -30,6 +30,18 @@ namespace DLDice
             }
         }
 
+        public static void AddToDictionaryOrSumWithExisting(Dictionary<int, int> target, int key, int value)
+        {
+            if (!target.ContainsKey(key))
+            {
+                target.Add(key, value);
+            }
+            else
+            {
+                target[key] += value;
+            }
+        }
+
         public static void AddToDictionaryOrSumWithExisting(Dictionary<ValueAndRerollsUsed, decimal> target, ValueAndRerollsUsed key, decimal value)
         {
             if (!target.ContainsKey(key))
