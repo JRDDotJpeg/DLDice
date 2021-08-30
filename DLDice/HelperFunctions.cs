@@ -8,7 +8,7 @@ using DLDice.DTO;
 
 namespace DLDice
 {
-    public class HelperFunctions
+    internal class HelperFunctions
     {
         /// <summary>
         /// Checks if the target contains the passed key if so add the passed value to the existing value.
