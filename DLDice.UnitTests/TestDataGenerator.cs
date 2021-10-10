@@ -16,37 +16,37 @@ namespace DLDice.UnitTests
         DLDice _dice = new DLDice();
 
 
-        public void GenerateData(DiceDTO dataDto = null)
+        public void GenerateData()
         {
-            // Update this object to the data required.
-            if (dataDto is null)
+
+            var dto = new DiceDTO
             {
-                var dto = new DiceDTO
-                {
-                    DicePools = new List<DicePool>()
-                };
+                DicePools = new List<DicePool>()
+            };
 
-                dto.DicePools.Add(new DicePool
-                {
-                    NumberOfDice = 10,
-                    HitOn = 4,
-                    DiceColour = DiceColour.red
-                });
-                dto.DicePools.Add(new DicePool
-                {
-                    NumberOfDice = 10,
-                    HitOn = 4,
-                    DiceColour = DiceColour.blue
-                });
-                dto.DicePools.Add(new DicePool
-                {
-                    NumberOfDice = 10,
-                    HitOn = 4,
-                    DiceColour = DiceColour.black
-                });
-            }
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = DiceColour.red
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = DiceColour.blue
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = DiceColour.black
+            });
+            
 
-            var results = _dice.Calculator.CalculateResults(dataDto);
+            var dtoAsJson = JsonConvert.SerializeObject(dto);
+
+            var results = _dice.Calculator.CalculateResults(dto);
             var resultsAsJson = JsonConvert.SerializeObject(results);
             var resultsBackFromJson = (DiceResultsDTO)JsonConvert.DeserializeObject(resultsAsJson, typeof(DiceResultsDTO));
 
@@ -77,5 +77,9 @@ namespace DLDice.UnitTests
         {
             return ((decimal)(0.8 + 0.8 + 0.8 + 1 + 1 + 2.8)) / (decimal)6;
         }
+
+        public static string JsonPayload10OfEachDice4Plus =
+            "{\"DicePools\":[{\"NumberOfDice\":10,\"HitOn\":4,\"DiceColour\":2,\"ReRolls\":0},{\"NumberOfDice\":10,\"HitOn\":4,\"DiceColour\":1,\"ReRolls\":0},{\"NumberOfDice\":10,\"HitOn\":4,\"DiceColour\":0,\"ReRolls\":0}]}";
+
     }
 }

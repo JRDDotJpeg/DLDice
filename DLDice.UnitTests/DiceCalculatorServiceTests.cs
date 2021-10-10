@@ -310,8 +310,8 @@ namespace DLDice.UnitTests
         
         public Dictionary<int, decimal> GenerateTestDataUsingSimulator(DicePool pool)
         {
-            var trialsPerThread = 550000;
-            var numberOfThreads = 12;
+            var trialsPerThread = 600000;
+            var numberOfThreads = 15;
             
             var trialResults = new List<Dictionary<int, int>>();
             var watch = new Stopwatch();

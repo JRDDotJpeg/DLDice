@@ -240,5 +240,22 @@ namespace DLDice.UnitTests
                 Assert.Fail("Results do not match");
             }
         }
+
+        [TestMethod]
+        public void CalculateResults_ExpectedBehaviour_10OfEach4PlusJsonPayload()
+        {
+            var res = DiceCalculator.CalculateResults(TestDataGenerator.JsonPayload10OfEachDice4Plus);
+            if (!CompareResults(res, ExpectedResultsFromDiceCalculator.TenOfEach4Plus))
+            {
+                Assert.Fail("Results do not match");
+            }
+        }
+
+        [TestMethod]
+        public void TestForInvalidJson()
+        {
+            var res = DiceCalculator.CalculateResults("All dogs are good dogs");
+            Assert.IsTrue(res.FoundError);
+        }
     }
 }

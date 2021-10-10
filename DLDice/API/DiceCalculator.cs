@@ -1,6 +1,8 @@
-﻿using DLDice.DTO;
+﻿using System;
+using DLDice.DTO;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace DLDice.API
 {
@@ -12,6 +14,13 @@ namespace DLDice.API
         /// <param name="dto"></param>
         /// <returns></returns>
         DiceResultsDTO CalculateResults(DiceDTO dto);
+
+        /// <summary>
+        /// Calculates the possible Results of the specified dice.
+        /// </summary>
+        /// <param name="json">Json object containing dice pools. See readme for details.</param>
+        /// <returns></returns>
+        DiceResultsDTO CalculateResults(string json);
     }
 
     internal class DiceCalculator : IDiceCalculator
@@ -25,17 +34,45 @@ namespace DLDice.API
 
         public DiceResultsDTO CalculateResults(DiceDTO dto)
         {
-            var uncombinedResults = dto.DicePools.Select(
-                dtoDicePool => _calculatorService.ResultsOfDicePool(dtoDicePool))
-                .ToList();
-
-            var combinedResults =
-                uncombinedResults.Aggregate(HelperFunctions.Combine);
-
-            return new DiceResultsDTO
+            try
             {
-                Results = combinedResults
-            };
+                var uncombinedResults = dto.DicePools.Select(
+                        dtoDicePool => _calculatorService.ResultsOfDicePool(dtoDicePool))
+                    .ToList();
+
+                var combinedResults =
+                    uncombinedResults.Aggregate(HelperFunctions.Combine);
+
+                return new DiceResultsDTO
+                {
+                    Results = combinedResults
+                };
+            }
+            catch (Exception e)
+            {
+                return new DiceResultsDTO
+                {
+                    FoundError = true,
+                    ErrorDetails = e.ToString()
+                };
+            }
+        }
+
+        public DiceResultsDTO CalculateResults(string json)
+        {
+            try
+            {
+                var dto = (DiceDTO) JsonConvert.DeserializeObject(json, typeof(DiceDTO));
+                return CalculateResults(dto);
+            }
+            catch (Exception ex)
+            {
+                return new DiceResultsDTO
+                {
+                    FoundError = true,
+                    ErrorDetails = ex.ToString()
+                };
+            }
         }
     }
 }

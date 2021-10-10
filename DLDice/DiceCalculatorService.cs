@@ -13,6 +13,7 @@ namespace DLDice
     internal class DiceCalculatorService : IDiceCalculatorService
     {
         private const int c_maxRolls = 10;
+        private const int c_maxDicePerPool = 50;
         private readonly IDiceFactory _diceFactory;
 
         public DiceCalculatorService(IDiceFactory diceFactory)
@@ -27,15 +28,21 @@ namespace DLDice
         /// <returns></returns>
         public Dictionary<int, decimal> ResultsOfDicePool(DicePool dicePool)
         {
-            if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > 50) return new Dictionary<int, decimal>();
-            if (dicePool.HitOn > 6 || dicePool.HitOn < 1)
+            if (dicePool.NumberOfDice < 1 || dicePool.NumberOfDice > c_maxDicePerPool)
+            {
+                throw new InvalidDataException($"Number of dice specified outside of allowed range, maximum dice per pool is: {c_maxDicePerPool}");
+            }
+            if (dicePool.HitOn > 6 || dicePool.HitOn < 2)
             {
                 throw new InvalidDataException($"Successes for HitOn out side of acceptable range, value:{dicePool.HitOn}");
             }
             
+            // Rerollable dice aren't independent from each other.
+            // Non rerollable dice are, as such we can use a much simpler algorithm
+            // for non rerollable dice.
             return dicePool.ReRolls > 0 ?
                 CreateResultsForRerollableDice(dicePool) :
-                CreateResultsForNonrerollableDice(dicePool);
+                CreateResultsForNonrerollableDice(dicePool); 
         }
 
         private Dictionary<int, decimal> CreateResultsForRerollableDice(DicePool dicePool)
@@ -86,11 +93,6 @@ namespace DLDice
             return convertedResults;
         }
 
-        /// <summary>
-        /// Dice that can't be rerolled are fully independent of each other.
-        /// </summary>
-        /// <param name="dicePool"></param>
-        /// <returns></returns>
         private Dictionary<int, decimal> CreateResultsForNonrerollableDice(DicePool dicePool)
         {
             var dice = _diceFactory.CreateDice(6, dicePool.HitOn, dicePool.DiceColour);
