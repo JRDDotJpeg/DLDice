@@ -12,15 +12,17 @@ namespace DLDice.API
         /// Calculates the possible Results of the specified dice.
         /// </summary>
         /// <param name="dto"></param>
+        /// <param name="maximumNumberOfDice"></param>
         /// <returns></returns>
-        DiceResultsDTO CalculateResults(DiceDTO dto);
+        DiceResultsDTO CalculateResults(DiceDTO dto, int maximumNumberOfDice =100);
 
         /// <summary>
         /// Calculates the possible Results of the specified dice.
         /// </summary>
         /// <param name="json">Json object containing dice pools. See readme for details.</param>
+        /// <param name="maximumNumberOfDice"></param>
         /// <returns></returns>
-        DiceResultsDTO CalculateResults(string json);
+        DiceResultsDTO CalculateResults(string json, int maximumNumberOfDice = 100);
     }
 
     internal class DiceCalculator : IDiceCalculator
@@ -32,10 +34,22 @@ namespace DLDice.API
             _calculatorService = service;
         }
 
-        public DiceResultsDTO CalculateResults(DiceDTO dto)
+        public DiceResultsDTO CalculateResults(DiceDTO dto, int maximumNumberOfDice = 100)
         {
             try
             {
+                var totalNumberOfDice = dto.DicePools.Sum(x => x.NumberOfDice);
+                if (totalNumberOfDice > maximumNumberOfDice)
+                {
+                    return new DiceResultsDTO
+                    {
+                        FoundError = true,
+                        ErrorType = ErrorTypes.TooManyDice,
+                        ErrorDetails =
+                            $"Total number of dice to be rolled{totalNumberOfDice} is greater than the maximum of {maximumNumberOfDice}"
+                    };
+                }
+
                 var uncombinedResults = dto.DicePools.Select(
                         dtoDicePool => _calculatorService.ResultsOfDicePool(dtoDicePool))
                     .ToList();
@@ -58,18 +72,19 @@ namespace DLDice.API
             }
         }
 
-        public DiceResultsDTO CalculateResults(string json)
+        public DiceResultsDTO CalculateResults(string json, int maximumNumberOfDice = 100)
         {
             try
             {
                 var dto = (DiceDTO) JsonConvert.DeserializeObject(json, typeof(DiceDTO));
-                return CalculateResults(dto);
+                return CalculateResults(dto, maximumNumberOfDice);
             }
             catch (Exception ex)
             {
                 return new DiceResultsDTO
                 {
                     FoundError = true,
+                    ErrorType = ErrorTypes.BadJson,
                     ErrorDetails = ex.ToString()
                 };
             }

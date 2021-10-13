@@ -12,6 +12,14 @@ namespace DLDice.DTO
 
         public bool FoundError { get; set; } = false;
 
+        public ErrorTypes ErrorType { get; set; }
+
         public string ErrorDetails { get; set; }
     }
+
+    public enum ErrorTypes
+    {
+        TooManyDice,
+        BadJson
+}
 }

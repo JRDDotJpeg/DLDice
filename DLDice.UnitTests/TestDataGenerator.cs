@@ -46,7 +46,7 @@ namespace DLDice.UnitTests
 
             var dtoAsJson = JsonConvert.SerializeObject(dto);
 
-            var results = _dice.Calculator.CalculateResults(dto);
+            var results = _dice.Calculator.CalculateResults(dto, 100);
             var resultsAsJson = JsonConvert.SerializeObject(results);
             var resultsBackFromJson = (DiceResultsDTO)JsonConvert.DeserializeObject(resultsAsJson, typeof(DiceResultsDTO));
 

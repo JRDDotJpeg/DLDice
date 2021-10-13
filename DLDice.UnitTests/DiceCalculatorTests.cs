@@ -256,6 +256,70 @@ namespace DLDice.UnitTests
         {
             var res = DiceCalculator.CalculateResults("All dogs are good dogs");
             Assert.IsTrue(res.FoundError);
+            Assert.IsTrue(res.ErrorType == ErrorTypes.BadJson);
+
+        }
+
+        [TestMethod]
+        public void ExceedDefaultMaximumNumberOfDice()
+        {
+            var dto = new DiceDTO
+            {
+                DicePools = new List<DicePool>()
+            };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 51,
+                HitOn = 4,
+                DiceColour = DiceColour.red
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 41,
+                HitOn = 4,
+                DiceColour = DiceColour.blue
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = DiceColour.black
+            });
+            var res = DiceCalculator.CalculateResults(dto);
+            Assert.IsTrue(res.FoundError);
+            Assert.IsTrue(res.ErrorType == ErrorTypes.TooManyDice);
+        }
+
+        [TestMethod]
+        public void ExceedSpecifiedMaximumNumberOfDice()
+        {
+            var dto = new DiceDTO
+            {
+                DicePools = new List<DicePool>()
+            };
+
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = DiceColour.red
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = DiceColour.blue
+            });
+            dto.DicePools.Add(new DicePool
+            {
+                NumberOfDice = 10,
+                HitOn = 4,
+                DiceColour = DiceColour.black
+            });
+            var res = DiceCalculator.CalculateResults(dto, 20);
+            Assert.IsTrue(res.FoundError);
+            Assert.IsTrue(res.ErrorType == ErrorTypes.TooManyDice);
         }
     }
 }
