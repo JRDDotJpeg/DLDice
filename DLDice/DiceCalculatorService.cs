@@ -12,7 +12,7 @@ namespace DLDice
 
     internal class DiceCalculatorService : IDiceCalculatorService
     {
-        private const int c_maxRolls = 10;
+        private const int c_maxTimesADiceCanExplode = 9;
         private const int c_maxDicePerPool = 50;
         private readonly IDiceFactory _diceFactory;
 
@@ -184,7 +184,7 @@ namespace DLDice
                 {
                     AddResultsOfDiceProducedByTheExplosion(numberOfRolls, results, newValue, 1, dice);
                 } 
-                else if (side.Explodes && numberOfRolls < c_maxRolls)
+                else if (side.Explodes && numberOfRolls <= c_maxTimesADiceCanExplode)
                 {
                     var numberOfDiceProducedByExplosion = 1; // This is left incase we want to readd this feature in future.
                     AddResultsOfDiceProducedByTheExplosion(numberOfRolls, results, newValue, numberOfDiceProducedByExplosion, dice);
